@@ -21,6 +21,7 @@ namespace Bubble
         public const int RedLine = (TileSize * 10) + 5;
 
         public KeyboardState _previousKey, _currentKey;
+        public MouseState _previousMouse, _currentMouse;
 
         public Random rnd = new Random();
 
