@@ -17,7 +17,11 @@ namespace Bubble
         public int[,] _bbPos;
 
         public Color[] allColor;
-        //saas
+
+        public int _bbHeight, _tileSize;
+
+        public KeyboardState _previousKey, _currentKey;
+
         public MainScene()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -34,6 +38,8 @@ namespace Bubble
 
             allColor = new Color[6];
             _bbPos = new int[11,10];
+            _bbHeight = 5;
+            _tileSize = 60;
 
             base.Initialize();
         }
@@ -63,7 +69,7 @@ namespace Bubble
                 for(int j = 0; j < 10; j++)
                 {
                     _bbPos[i, j] = rnd.Next(allColor.Length);
-                    if (i > 6) _bbPos[i, j] = -1;
+                    if (i > 5) _bbPos[i, j] = -1;
                 }
             }
         }
@@ -74,7 +80,15 @@ namespace Bubble
                 Exit();
 
             // TODO: Add your update logic here
-            
+            _currentKey = Keyboard.GetState();
+
+            if (_currentKey.IsKeyDown(Keys.Space) && !_currentKey.Equals(_previousKey))
+            {
+                _bbHeight += _tileSize;
+            }
+
+            _previousKey = _currentKey;
+
 
             base.Update(gameTime);
         }
@@ -89,7 +103,7 @@ namespace Bubble
             _spriteBatch.Draw(_rect, Vector2.Zero, null, Color.DarkGoldenrod, 0f, Vector2.Zero, new Vector2(300 - 15, 900), SpriteEffects.None, 0f);
             _spriteBatch.Draw(_rect, new Vector2(900+15, 0), null, Color.DarkGoldenrod, 0f, Vector2.Zero, new Vector2(300 - 15, 900), SpriteEffects.None, 0f);
 
-            _spriteBatch.Draw(_rect, new Vector2(300-15, 5+(11*60)), null, Color.DarkRed, 0f, Vector2.Zero, new Vector2(630, 2), SpriteEffects.None, 0f);
+            _spriteBatch.Draw(_rect, new Vector2(300-15, 5+(10*60)), null, Color.DarkRed, 0f, Vector2.Zero, new Vector2(630, 2), SpriteEffects.None, 0f);
 
             for (int i = 0; i < 11; i++) 
             { 
@@ -99,13 +113,13 @@ namespace Bubble
                     {
                         if(i % 2 == 0)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) -15, 5 + (i * 60)), allColor[_bbPos[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) -15, 5 + (i * 60)), Color.White);
+                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) -15, _bbHeight + (i * 60)), allColor[_bbPos[i, j]]);
+                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) -15, _bbHeight + (i * 60)), Color.White);
                         }
                         else
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) +15, 5 + (i * 60)), allColor[_bbPos[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) +15, 5 + (i * 60)), Color.White);
+                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) +15, _bbHeight + (i * 60)), allColor[_bbPos[i, j]]);
+                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) +15, _bbHeight + (i * 60)), Color.White);
                         }
                     }
                 }
