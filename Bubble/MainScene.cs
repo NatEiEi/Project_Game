@@ -263,7 +263,7 @@ namespace Bubble
 
 
 
-                    if (880 - _moveY - CheckY <= 400 + 30 * (float)Math.Cos(_moveAngle))
+                    if (880 - _moveY - CheckY <= 425 + 30 * (float)Math.Cos(_moveAngle))
                     {
                         _PlusY = 0;
                         _PlusX = 0;
