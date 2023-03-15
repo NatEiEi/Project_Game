@@ -34,7 +34,7 @@ namespace Bubble
         Vector2 _CurrentBubblePos;
         int _CurrentBubble , _NextBubble;
         GameState _currentGameState;
-        float Check;
+        float CheckX , CheckY;
 
 
 
@@ -142,8 +142,8 @@ namespace Bubble
                         _moveAngle = _rotateAngle;
                         _currentGameState = GameState.Shoot;
 
-                        _PlusY = 3*(float)Math.Cos((_moveAngle));
-                        _PlusX = 3*(float)Math.Sin((_moveAngle));
+                        _PlusY = 5*(float)Math.Cos((_moveAngle));
+                        _PlusX = 5*(float)Math.Sin((_moveAngle));
 
                     }
 
@@ -239,14 +239,15 @@ namespace Bubble
                 case GameState.Shoot:
                     //NewBubble Drawing
 
-                    Check = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_moveAngle)) ;
-                    
-                    if (_moveX > 0 && 600 - Check - _moveX >= 315 - 30 * (float)Math.Sin(_moveAngle))
+                    CheckX = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_moveAngle)) ;
+                    CheckY = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Cos(_moveAngle));
+
+                    if (_moveX > 0 && 600 - CheckX - _moveX >= 315 - 30 * (float)Math.Sin(_moveAngle))
                     {
                         _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     }
-                    else if (_moveX <= 0 && Check + _moveX   >= -285 + 30 * (float)Math.Sin(_moveAngle))
+                    else if (_moveX <= 0 && CheckX + _moveX   >= -285 + 30 * (float)Math.Sin(_moveAngle))
                     {
                         _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
@@ -262,18 +263,32 @@ namespace Bubble
 
 
 
+                    if (880 - _moveY - CheckY <= 400 + 30 * (float)Math.Cos(_moveAngle))
+                    {
+                        _PlusY = 0;
+                        _PlusX = 0;
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    
+                    }
 
 
 
-                        break;
+
+
+
+
+
+
+                    break;
                 case GameState.GameEnded:
                     break;
 
             }
-            Check = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_rotateAngle)) ;
-            float ttt = Check - _moveX;
+            CheckX = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_rotateAngle)) ;
+            float ttt = CheckX - _moveX;
 
-            _spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + Math.Cos(_rotateAngle) + " " + Math.Sin(_rotateAngle) + "sss       "+(Check - _moveX) , new Vector2(10, 40), Color.White);
+            _spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + Math.Cos(_rotateAngle) + " " + Math.Sin(_rotateAngle) + "sss       "+(CheckX - _moveX) , new Vector2(10, 40), Color.White);
 
 
             //_spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + ttt + " " + Check, new Vector2(10, 40), Color.White);
@@ -290,7 +305,7 @@ namespace Bubble
 
         protected void Reset()
         {
-            _moveSpeed = 300f;
+            _moveSpeed = 100f;
         }
 
         protected float[] naive(int x2, int y2)
