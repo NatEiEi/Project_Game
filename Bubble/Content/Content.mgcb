@@ -37,6 +37,13 @@
 /processorParam:TextureFormat=Color
 /build:circle.png
 
+#begin File.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:File.spritefont;GameFont.spritefont
+
 #begin Trident.png
 /importer:TextureImporter
 /processor:TextureProcessor
