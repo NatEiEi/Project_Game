@@ -12,11 +12,15 @@ namespace Bubble
 
         public Random rnd = new Random();
 
-        public Texture2D _circle, _bubble, _rect;
+        public Texture2D _circle, _bubble, _rect , _Trident;
 
         public int[,] _bbPos;
 
         public Color[] allColor;
+
+        MouseState _mouseState;
+        Point TridentPos ;
+        float _rotateAngle;
 
         public MainScene()
         {
@@ -34,6 +38,7 @@ namespace Bubble
 
             allColor = new Color[6];
             _bbPos = new int[11,10];
+            TridentPos = new Point(600, 860);
 
             base.Initialize();
         }
@@ -45,6 +50,7 @@ namespace Bubble
             // TODO: use this.Content to load your game content here
             _bubble = this.Content.Load<Texture2D>("bubble");
             _circle = this.Content.Load<Texture2D>("circle");
+            _Trident = this.Content.Load<Texture2D>("Trident");
             _rect = new Texture2D(_graphics.GraphicsDevice, 1, 1);
 
             Color[] data = new Color[1];
@@ -74,6 +80,7 @@ namespace Bubble
                 Exit();
 
             // TODO: Add your update logic here
+            _mouseState = Mouse.GetState();
             
 
             base.Update(gameTime);
@@ -110,6 +117,27 @@ namespace Bubble
                     }
                 }
             }
+
+
+            
+
+            //Trident
+            if ((_mouseState.X - TridentPos.X) != 0 && _mouseState.X > TridentPos.X)
+            {
+                _rotateAngle = -MathHelper.Pi / 2 + (float)Math.Atan((float)(TridentPos.Y - _mouseState.Y) / (float)(_mouseState.X - TridentPos.X));
+            }
+            else if ((_mouseState.X - TridentPos.X) != 0 && _mouseState.X < TridentPos.X)
+            {
+                _rotateAngle = -MathHelper.Pi / 2 + MathHelper.Pi - (float)Math.Atan((float)(TridentPos.Y - _mouseState.Y) / (float)(TridentPos.X - _mouseState.X));
+
+            }
+            else
+            {
+                _rotateAngle = 0;
+            }
+
+            _spriteBatch.Draw(_Trident, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, -_rotateAngle, new Vector2(0 + 80, 300), 1f, SpriteEffects.None, 0f);
+            
 
 
 
