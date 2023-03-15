@@ -17,7 +17,7 @@ namespace Bubble
         public int[,] _bbPos;
 
         public Color[] allColor;
-
+        //sa
         public MainScene()
         {
             _graphics = new GraphicsDeviceManager(this);
