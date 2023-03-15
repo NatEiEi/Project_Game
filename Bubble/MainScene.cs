@@ -142,8 +142,8 @@ namespace Bubble
                         _moveAngle = _rotateAngle;
                         _currentGameState = GameState.Shoot;
 
-                        _PlusY = 3*(float)Math.Sin((_moveAngle));
-                        _PlusX = 3*(float)Math.Cos((_moveAngle));
+                        _PlusY = 3*(float)Math.Cos((_moveAngle));
+                        _PlusX = 3*(float)Math.Sin((_moveAngle));
 
                     }
 
@@ -160,8 +160,8 @@ namespace Bubble
                     {
                         _tick = 0;
                         
-                        _moveY += _PlusX;
-                        _moveX += _PlusY;
+                        _moveY += _PlusY;
+                        _moveX += _PlusX;
                     }
 
 
@@ -254,8 +254,8 @@ namespace Bubble
 
                     else
                     {
-                        _PlusX = 0;
-                        _PlusY = 0;
+
+                        _PlusX *= -1;
                         _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     }
