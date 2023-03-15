@@ -34,6 +34,10 @@ namespace Bubble
         Vector2 _CurrentBubblePos;
         int _CurrentBubble , _NextBubble;
         GameState _currentGameState;
+        float Check;
+
+
+
 
         enum GameState
         {
@@ -109,6 +113,8 @@ namespace Bubble
             _previousMouseState = _mouseState;
 
 
+            
+
 
             switch (_currentGameState)
             {
@@ -117,6 +123,10 @@ namespace Bubble
                 case GameState.GamePaused:
                     break;
                 case GameState.WaitingForShooting:
+
+
+
+                    
 
                     _mouseState = Mouse.GetState();
                     //Trident Move
@@ -217,28 +227,56 @@ namespace Bubble
                 case GameState.GamePaused:
                     break;
                 case GameState.WaitingForShooting:
-                    
-                    //NewBubble Drawing
-                    _spriteBatch.Draw(_circle, new Vector2(TridentPos.X, TridentPos.Y), null, allColor[rnd.Next(allColor.Length)], _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
-                    _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
 
+                    //NewBubble Drawing
+                    
+                    _spriteBatch.Draw(_circle, new Vector2(TridentPos.X , TridentPos.Y), null, allColor[rnd.Next(allColor.Length)], _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                   
 
 
                     break;
                 case GameState.Shoot:
                     //NewBubble Drawing
+
+                    Check = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_moveAngle)) ;
                     
+                    if (_moveX > 0 && 600 - Check - _moveX >= 315 - 30 * (float)Math.Sin(_moveAngle))
+                    {
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    }
+                    else if (_moveX <= 0 && Check + _moveX   >= -285 + 30 * (float)Math.Sin(_moveAngle))
+                    {
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    }
+
+                    else
+                    {
+                        _PlusX = 0;
+                        _PlusY = 0;
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    }
 
 
-                    _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
-                    _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
 
-                    break;
+
+
+
+                        break;
                 case GameState.GameEnded:
                     break;
 
             }
-            _spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + _CurrentBubblePos.X + " " + _moveY, new Vector2(10, 40), Color.White);
+            Check = (float)(Math.Sqrt(30 * 30 + 240 * 240) * Math.Sin(_rotateAngle)) ;
+            float ttt = Check - _moveX;
+
+            _spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + Math.Cos(_rotateAngle) + " " + Math.Sin(_rotateAngle) + "sss       "+(Check - _moveX) , new Vector2(10, 40), Color.White);
+
+
+            //_spriteBatch.DrawString(_font, "Score : " + MathHelper.ToDegrees(_rotateAngle) + " " + ttt + " " + Check, new Vector2(10, 40), Color.White);
 
 
 
