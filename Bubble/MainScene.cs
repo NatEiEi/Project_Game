@@ -145,11 +145,6 @@ namespace Bubble
                     _mouseState = Mouse.GetState();
 
 
-                    //_move.Y += 1;
-                    //_move.X += 1;
-      
-
-
                     _tick += gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
                     if (_tick >= 1 / _moveSpeed)
                     {
@@ -157,19 +152,16 @@ namespace Bubble
                         
                         _moveY += _PlusX;
                         _moveX += _PlusY;
-
-                      
-                 
-
-
                     }
-
 
 
                     //Trident Move
                     relPoint = new Vector2((_mouseState.X - TridentPos.X), (_mouseState.Y - TridentPos.Y));
                     _rotateAngle = (MathHelper.ToDegrees(MathF.Atan2(relPoint.Y, relPoint.X)) + 450f) % 360f;
                     _rotateAngle = MathHelper.ToRadians(_rotateAngle);
+
+
+
                     break;
                 case GameState.GameEnded:
                     break;
@@ -239,7 +231,7 @@ namespace Bubble
 
 
                     _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
-                    _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
 
                     break;
                 case GameState.GameEnded:
