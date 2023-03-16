@@ -160,19 +160,19 @@ namespace Bubble
 
             for (int i = 0; i < 11; i++) 
             { 
-                for(int j = 0; j < 10; j++)
+                for(int j = 0; j < 20; j++)
                 {
-                    if (Singleton.Instance._bbColor[i,j] != -1)
+                    if (Singleton.Instance._bbColor[i,j] > -1)
                     {
                         if(i % 2 == 0)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
+                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                         }
                         else
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
+                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                         }
                     }
                 }
@@ -258,6 +258,13 @@ namespace Bubble
 
             _moveX = 0;
             _moveY = 0;
+        }
+
+        protected LinkedList<Vector2> _possibleBlank(int[,]b)
+        {
+            LinkedList<Vector2> list = new LinkedList<Vector2>();
+
+            return list;
         }
 
         protected void popped(int[,] b, int x, int y)
