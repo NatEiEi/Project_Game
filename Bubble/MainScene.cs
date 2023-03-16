@@ -24,6 +24,24 @@ namespace Bubble
         float _tick;
         float _moveSpeed, _PlusX, _PlusY, _moveX, _moveY;
 
+        public KeyboardState _previousKey, _currentKey;
+        public MouseState _previousMouse, _currentMouse;
+
+        public Random rnd = new Random();
+
+        public Color[] allColor = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
+        public int[,] _bbColor = { { 0, -4, 1, -4, 2, -4, 3, -4, 1, -4, 2, -4, 3, -4, 2, -4, 3, -4, 3, -4 }
+                                , { -4, 0, -4, 0, -4, 3, -4, 0, -4, 3, -4, 2, -4, 0, -4, 3, -4, 2, -4, 1 }
+                                , { 2, -4, 3, -4, 0, -4, 1, -4, 3, -4, 0, -4, 1, -4, 0, -4, 1, -4, 1, -4 }
+                                , { -4, 2, -4, 2, -4, 1, -4, 2, -4, 1, -4, 0, -4, 2, -4, 1, -4, 0, -4, 3}
+                                , { 0, -4, 3, -4, 1, -4, 2, -4, 0, -4, 3, -4, 1, -4, 0, -4, 3, -4, 0, -4}
+                                , { -4, 1, -4, 2, -4, 0, -4, 3, -4, 1, -4, 2, -4, 0, -4, 1, -4, 2, -4, 1}
+                                , { -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4}
+                                , { -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1}
+                                , { -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4}
+                                , { -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1}
+                                , { -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4} };
+
         enum GameState
         {
             GameStarted,
@@ -81,7 +99,7 @@ namespace Bubble
                 Exit();
 
             // TODO: Add your update logic here
-            Singleton.Instance._currentKey = Keyboard.GetState();
+            _currentKey = Keyboard.GetState();
 
             switch (_currentGameState)
             {
@@ -91,14 +109,14 @@ namespace Bubble
                     break;
                 case GameState.WaitingForShooting:
 
-                    Singleton.Instance._currentMouse = Mouse.GetState();
+                    _currentMouse = Mouse.GetState();
                     //Trident Move
-                    relPoint = new Vector2((Singleton.Instance._currentMouse.X - TridentPos.X), (Singleton.Instance._currentMouse.Y - TridentPos.Y));
+                    relPoint = new Vector2((_currentMouse.X - TridentPos.X), (_currentMouse.Y - TridentPos.Y));
                     _rotateAngle = (MathHelper.ToDegrees(MathF.Atan2(relPoint.Y, relPoint.X)) + 450f) % 360f;
                     _rotateAngle = MathHelper.ToRadians(_rotateAngle);
 
-                    if (Singleton.Instance._currentMouse.LeftButton == ButtonState.Pressed &&
-                        Singleton.Instance._previousMouse.LeftButton == ButtonState.Released)
+                    if (_currentMouse.LeftButton == ButtonState.Pressed &&
+                        _previousMouse.LeftButton == ButtonState.Released)
                     {
                         _moveAngle = _rotateAngle;
                         _currentGameState = GameState.Shoot;
@@ -108,14 +126,14 @@ namespace Bubble
 
                     }
 
-                    if (Singleton.Instance._currentKey.IsKeyDown(Keys.Space) && !Singleton.Instance._currentKey.Equals(Singleton.Instance._previousKey))
+                    if (_currentKey.IsKeyDown(Keys.Space) && !_currentKey.Equals(_previousKey))
                     {
                         _bbHeight += Singleton.TileSize;
                     }
 
                     break;
                 case GameState.Shoot:
-                    Singleton.Instance._currentMouse = Mouse.GetState();
+                    _currentMouse = Mouse.GetState();
 
                     _tick += gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
                     if (_tick >= 1 / _moveSpeed)
@@ -127,11 +145,11 @@ namespace Bubble
                     }
 
                     //Trident Move
-                    relPoint = new Vector2((Singleton.Instance._currentMouse.X - TridentPos.X), (Singleton.Instance._currentMouse.Y - TridentPos.Y));
+                    relPoint = new Vector2((_currentMouse.X - TridentPos.X), (_currentMouse.Y - TridentPos.Y));
                     _rotateAngle = (MathHelper.ToDegrees(MathF.Atan2(relPoint.Y, relPoint.X)) + 450f) % 360f;
                     _rotateAngle = MathHelper.ToRadians(_rotateAngle);
 
-                    if (Singleton.Instance._currentKey.IsKeyDown(Keys.R) && !Singleton.Instance._currentKey.Equals(Singleton.Instance._previousKey))
+                    if (_currentKey.IsKeyDown(Keys.R) && !_currentKey.Equals(_previousKey))
                     {
                         Reset();
                     }
@@ -142,7 +160,7 @@ namespace Bubble
 
             }
 
-            Singleton.Instance._previousKey = Singleton.Instance._currentKey;
+            _previousKey = _currentKey;
 
             base.Update(gameTime);
         }
@@ -162,16 +180,16 @@ namespace Bubble
             { 
                 for(int j = 0; j < 20; j++)
                 {
-                    if (Singleton.Instance._bbColor[i,j] > -1)
+                    if (_bbColor[i,j] > -1)
                     {
                         if(i % 2 == 0)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
+                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
                             _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                         }
                         else
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Singleton.Instance.allColor[Singleton.Instance._bbColor[i, j]]);
+                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
                             _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                         }
                     }
@@ -191,7 +209,7 @@ namespace Bubble
 
                     //NewBubble Drawing
 
-                    _spriteBatch.Draw(_circle, new Vector2(TridentPos.X, TridentPos.Y), null, Singleton.Instance.allColor[Singleton.Instance.rnd.Next(Singleton.Instance.allColor.Length)], _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                    _spriteBatch.Draw(_circle, new Vector2(TridentPos.X, TridentPos.Y), null, allColor[rnd.Next(allColor.Length)], _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
 
 
@@ -204,12 +222,12 @@ namespace Bubble
 
                     if (_moveX > 0 && 600 - CheckX - _moveX >= 315 - 30 * (float)Math.Sin(_moveAngle))
                     {
-                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Singleton.Instance.allColor[Singleton.Instance.rnd.Next(Singleton.Instance.allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     }
                     else if (_moveX <= 0 && CheckX + _moveX >= -285 + 30 * (float)Math.Sin(_moveAngle))
                     {
-                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Singleton.Instance.allColor[Singleton.Instance.rnd.Next(Singleton.Instance.allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     }
 
@@ -217,7 +235,7 @@ namespace Bubble
                     {
 
                         _PlusX *= -1;
-                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Singleton.Instance.allColor[Singleton.Instance.rnd.Next(Singleton.Instance.allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                     }
 
@@ -225,7 +243,7 @@ namespace Bubble
                     {
                         _PlusY = 0;
                         _PlusX = 0;
-                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Singleton.Instance.allColor[Singleton.Instance.rnd.Next(Singleton.Instance.allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
+                        _spriteBatch.Draw(_circle, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, allColor[rnd.Next(allColor.Length)], _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
                         _spriteBatch.Draw(_bubble, new Vector2(TridentPos.X + _moveX, TridentPos.Y - _moveY), null, Color.White, _moveAngle, new Vector2(30, 240), 1f, SpriteEffects.None, 0f);
 
                     }
