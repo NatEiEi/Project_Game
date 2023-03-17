@@ -416,8 +416,8 @@ namespace Bubble
             float YFinal = 0;
             int pseudoY = (int)(880 - _moveY - CheckY + 30 * (float)Math.Cos(_moveAngle)) - 30;
             int pseudoX_MidPoint = (int)(CheckX + _moveX + 285 - 30 * (float)Math.Sin(_moveAngle)) + 30;
-            int pseudoX_LeftPoint = (int)(CheckX + _moveX + 285 - 30 * (float)Math.Sin(_moveAngle)) +5;
-            int pseudoX_RightPoint = (int)(CheckX + _moveX + 285 - 30 * (float)Math.Sin(_moveAngle)) + 55;
+            int pseudoX_LeftPoint = (int)(CheckX + _moveX + 285 - 30 * (float)Math.Sin(_moveAngle)) ;
+            int pseudoX_RightPoint = (int)(CheckX + _moveX + 285 - 30 * (float)Math.Sin(_moveAngle)) + 60;
 
 
             if (pseudoY < 630 && pseudoX_MidPoint < 600)
@@ -447,7 +447,8 @@ namespace Bubble
                 }
                 
                 
-                else if (IsBubbleHit(pseudoX_LeftPoint, pseudoY +20))
+                /*
+                if (IsBubbleHit(pseudoX_LeftPoint, pseudoY ))
                 {
 
                     if ((pseudoY / 60) % 2 == 0)
@@ -467,10 +468,10 @@ namespace Bubble
                     }
 
                 }
-
+                /*
                 else if (pseudoX_RightPoint < 600 && pseudoX_MidPoint / 60 == pseudoX_RightPoint / 60)
                 {
-                    if (IsBubbleHit(pseudoX_RightPoint, pseudoY +20 ))
+                    if (IsBubbleHit(pseudoX_RightPoint, pseudoY ))
                     {
                         if ((pseudoY / 60) % 2 == 0)
                         {
@@ -488,7 +489,7 @@ namespace Bubble
                                 _bbColor[pseudoY / 60, (pseudoX_LeftPoint / 60 - 1) * 2] = 1;
                         }
                     }
-                }
+                }*/
 
                 _spriteBatch.DrawString(_font, "XXXXXXXaaaaaAt : " + _bbColor, new Vector2(10, 100), Color.White);
 
