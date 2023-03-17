@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bubble
 {
@@ -22,7 +23,7 @@ namespace Bubble
         float _rotateAngle, _moveAngle;
         Vector2 relPoint;
         float _tick;
-        float _moveSpeed, _PlusX, _PlusY, _moveX, _moveY;
+        float _moveSpeed, _PlusX, _PlusY, _moveX, _moveY, _falling;
 
         public KeyboardState _previousKey, _currentKey;
         public MouseState _previousMouse, _currentMouse;
@@ -165,6 +166,19 @@ namespace Bubble
 
                         _moveY += _PlusY;
                         _moveX += _PlusX;
+
+                        if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).Count > 0)
+                        {
+                            _falling += 10;
+
+                            if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).First<Point>().X * 60 + _falling >= 900)
+                            {
+                                foreach (Point p in findBBcanFall(_bbColor, _whereNoTag(_bbColor)))
+                                {
+                                    _bbColor[p.X, p.Y] = -1;
+                                }
+                            }
+                        }
                     }
 
                     //Trident Move
@@ -209,45 +223,58 @@ namespace Bubble
             { 
                 for(int j = 0; j < 20; j++)
                 {
-                    if (_bbColor[i,j] > -1)
+                    if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).Find(new Point(i, j)) == null)
                     {
-                        if(i % 2 == 0)
+                        if (_bbColor[i, j] > -1)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            if (i % 2 == 0)
+                            {
+                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
+                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
+                            else
+                            {
+                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
+                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
                         }
-                        else
+                        else if (_bbColor[i, j] == -2)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize/2) + (j/2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            if (i % 2 == 0)
+                            {
+                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
+                            else
+                            {
+                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
                         }
-                    }
-                    else if (_bbColor[i,j] == -2)
-                    {
-                        if (i % 2 == 0)
+                        else if (_bbColor[i, j] == -1)
                         {
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                        }
-                        else
-                        {
-                            _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            if (i % 2 == 0)
+                            {
+                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
+                            else
+                            {
+                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
+                            }
                         }
                     }
                 }
             }
 
-            
-            foreach(Point p in findBBcanFall(_bbColor, _whereNoTag(_bbColor)))
+            foreach (Point p in findBBcanFall(_bbColor, _whereNoTag(_bbColor)))
             {
                 if (p.X % 2 == 0)
                 {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _bbHeight + (p.X * Singleton.TileSize)), Color.Black);
-                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _bbHeight + (p.X * Singleton.TileSize)), Color.LightCyan);
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
                 else
                 {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _bbHeight + (p.X * Singleton.TileSize)), Color.Black);
-                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _bbHeight + (p.X * Singleton.TileSize)), Color.LightCyan);
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
             }
 
@@ -318,7 +345,7 @@ namespace Bubble
 
             _spriteBatch.DrawString(_font, "At : " + MathHelper.ToDegrees(_rotateAngle) + " " + Math.Cos(_rotateAngle) + " " + Math.Sin(_rotateAngle) + "sss       " + (CheckX - _moveX), new Vector2(10, 40), Color.White);
 
-            _spriteBatch.DrawString(_font, "Have : " + _allBlank(_bbColor).Count, new Vector2(600, 500), Color.Red);
+            _spriteBatch.DrawString(_font, "Have : " + _falling, new Vector2(600, 500), Color.Red);
 
             _spriteBatch.End();
             _graphics.BeginDraw();
@@ -329,6 +356,7 @@ namespace Bubble
         protected void Reset()
         {
             _bbHeight = 5;
+            _falling = _bbHeight;
             TridentPos = new Point(600, 880);
 
             _currentGameState = GameState.WaitingForShooting;
