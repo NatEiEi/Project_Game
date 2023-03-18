@@ -12,19 +12,20 @@ namespace Bubble
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        public Texture2D _circle, _bubble, _rect, _bg, _trident;
+        public SpriteFont _font;
+        GameState _currentGameState;
+        public int _bbHeight, _newbb, _nextbb;
+        Point TridentPos;
+        Vector2 relPoint;
+        float _rotateAngle, _moveAngle, _tick, _moveSpeed, _PlusX, _PlusY, _moveX, _moveY, _falling, _X_Axis, _Y_Axis;
+        public KeyboardState _previousKey, _currentKey;
+        public MouseState _previousMouse, _currentMouse;
         public Random rnd = new Random();
         public Color[] allColor = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
         public int[,] _bbColor;
         LinkedList<Point> _allFall;
         bool _isFalled;
-
-        public Texture2D _circle, _bubble, _rect;
-
-        public int[,] _bbPos;
-
-        public Color[] allColor;
-        LinkedList<Point> _test;
-        LinkedListNode<Point> _node;
 
         enum GameState
         {
@@ -34,11 +35,6 @@ namespace Bubble
             ShootBubble,
             GameEnded
         }
-
-        Vector2 _CurrentBubblePos;
-        int _CurrentBubble, _NextBubble;
-        GameState _currentGameState;
-        float CheckX, CheckY;
 
         public MainScene()
         {
@@ -50,13 +46,30 @@ namespace Bubble
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            _graphics.PreferredBackBufferWidth = 1200;
-            _graphics.PreferredBackBufferHeight = 900;
+            _graphics.PreferredBackBufferWidth = Singleton.ScreenWidth;
+            _graphics.PreferredBackBufferHeight = Singleton.ScreenHeight;
             _graphics.ApplyChanges();
 
-            allColor = new Color[6];
-            _bbPos = new int[11,10];
+            _bbColor = new int[11, 20]
+            {
+                { 0, -4, 1, -4, 2, -4, 3, -4, 1, -4, 2, -4, 3, -4, 2, -4, 3, -4, 3, -4 }
+                , { -4, 0, -4, 0, -4, 3, -4, 0, -4, 3, -4, 2, -4, 0, -4, 3, -4, 2, -4, 1 }
+                , { 2, -4, 3, -4, 0, -4, 1, -4, 3, -4, 0, -4, 1, -4, 0, -4, 1, -4, 1, -4 }
+                , { -4, 2, -4, 2, -4, 1, -4, 2, -4, 1, -4, 0, -4, 2, -4, 1, -4, 0, -4, 3}
+                , { 0, -4, 3, -4, 1, -4, 2, -4, 0, -4, 3, -4, 1, -4, 0, -4, 3, -4, -1, -4}
+                , { -4, 1, -4, 2, -4, 0, -4, 3, -4, 1, -4, 2, -4, 0, -4, 1, -4, -1, -4, -1}
+                , { -1, -4, 1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4}
+                , { -4, -1, -4, 1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1}
+                , { -1, -4, -1, -4, 1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4}
+                , { -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1}
+                , { -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4, -1, -4}
+            };
+
+            _currentGameState = GameState.WaitingForShooting;
+            _nextbb = rnd.Next(4);
+            _allFall = new LinkedList<Point>();
+
+            Reset();
 
             base.Initialize();
         }
@@ -77,44 +90,23 @@ namespace Bubble
             data[0] = Color.White;
             _rect.SetData(data);
 
-            allColor[0] = Color.Red;
-            allColor[1] = Color.Green;
-            allColor[2] = Color.Blue;
-            allColor[3] = Color.Yellow;
-            allColor[4] = Color.Orange;
-            allColor[5] = Color.Purple;
-
-            for(int i = 0; i < 11; i++)
-            {
-                for(int j = 0; j < 10; j++)
-                {
-                    _bbPos[i, j] = rnd.Next(allColor.Length);
-                    if (i > 6) _bbPos[i, j] = -1;
-                }
-            }
         }
 
-                    break;
-                case GameState.Shoot:
-
-                    _possibleBlank(_bbColor);
-
-                    _currentMouse = Mouse.GetState();
-
-                    _tick += gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
-                    if (_tick >= 1 / _moveSpeed)
-                    {
-                        _tick = 0;
+        protected override void Update(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
 
             // TODO: Add your update logic here
-            
+            _currentKey = Keyboard.GetState();
 
-                            if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).First<Point>().X * 60 + _falling >= 900)
-                            {
-                                falled();
-                            }
-                        }
-                    }
+            switch (_currentGameState)
+            {
+                case GameState.WaitForReady:
+                    break;
+                case GameState.GamePaused:
+                    break;
+                case GameState.WaitingForShooting:
 
                     _possibleBlank(_bbColor);
 
@@ -143,16 +135,9 @@ namespace Bubble
                         _newbb -= _nextbb;
                     }
 
-                    if (_currentKey.IsKeyDown(Keys.S) && !_currentKey.Equals(_previousKey))
+                    if (_currentKey.IsKeyDown(Keys.Space) && !_currentKey.Equals(_previousKey))
                     {
-                        _falling = _bbHeight;
-                        _moveSpeed = 100f;
-
-                        _moveX = 0;
-                        _moveY = 0;
-
-                        _newbb = _nextbb;
-                        _nextbb = rnd.Next(4);
+                        _bbHeight += Singleton.TileSize;
                     }
 
                     break;
@@ -163,84 +148,102 @@ namespace Bubble
                     _currentMouse = Mouse.GetState();
 
 
-        protected override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.Black);
+
+                    _tick += gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
+                    if (_tick >= 1 / _moveSpeed)
+                    {
+                        _tick = 0;
 
                         _moveY += _PlusY;
                         _moveX += _PlusX;
 
-            _spriteBatch.Draw(_rect, Vector2.Zero, null, Color.DarkGoldenrod, 0f, Vector2.Zero, new Vector2(300 - 15, 900), SpriteEffects.None, 0f);
-            _spriteBatch.Draw(_rect, new Vector2(900+15, 0), null, Color.DarkGoldenrod, 0f, Vector2.Zero, new Vector2(300 - 15, 900), SpriteEffects.None, 0f);
-
-            _spriteBatch.Draw(_rect, new Vector2(300-15, 5+(11*60)), null, Color.DarkRed, 0f, Vector2.Zero, new Vector2(630, 2), SpriteEffects.None, 0f);
-
-            for (int i = 0; i < 11; i++) 
-            { 
-                for(int j = 0; j < 10; j++)
-            {
-                if(i % 2 == 0)
-                {
-                    if (_bbPos[i,j] != -1)
-                    {
-                        if(i % 2 == 0)
+                        if (_allFall.Count > 0)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) -15, 5 + (i * 60)), allColor[_bbPos[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) -15, 5 + (i * 60)), Color.White);
+                            _falling += 10;
+
+                            _moveX = 0; _moveY = 0;
+                            _PlusX = 0; _PlusY = 0;
+
+                            if (_allFall.First<Point>().X * 60 + _falling >= 900)
+                            {
+                                fallingDown();
+                            }
+
+                            if (_isFalled)
+                            {
+                                Reset();
+                                _currentGameState = GameState.WaitingForShooting;
+                            }
                         }
-                        else
+
+                    }
+
+                    if (IsAddedBubble(600 - _X_Axis - _moveX))
+                    {
+                        if (_isFalled)
                         {
-                            _spriteBatch.Draw(_circle, new Vector2(300 + (j * 60) +15, 5 + (i * 60)), allColor[_bbPos[i, j]]);
-                            _spriteBatch.Draw(_bubble, new Vector2(300 + (j * 60) +15, 5 + (i * 60)), Color.White);
+                            Reset();
+                            _currentGameState = GameState.WaitingForShooting;
                         }
                     }
-                }
+
+
+                    if (_currentKey.IsKeyDown(Keys.P) && !_currentKey.Equals(_previousKey))
+                    {
+                        popped(_bbColor, 2, 0);
+                    }
+
+                    if (_currentKey.IsKeyDown(Keys.R) && !_currentKey.Equals(_previousKey))
+                    {
+                        Reset();
+                        _moveX = 0;
+                        _moveY = 0;
+                        _moveAngle = 0;
+                        _currentGameState = GameState.WaitingForShooting;
+                    }
+
+                    break;
+                case GameState.GameEnded:
+                    break;
+
             }
-                    for (int j = 0; j < 20; j += 2)
-                    {
-                        if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).Find(new Point(i, j)) == null)
-                        {
-                            if (_bbColor[i, j] > -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -2)
-                            {
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                        }
-                    }
+
+            _previousMouse = _currentMouse;
+            _previousKey = _currentKey;
+
+            base.Update(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.Aqua);
+
+            _spriteBatch.Begin();
+
+            _spriteBatch.Draw(_bg, Vector2.Zero, Color.White);
+
+            _spriteBatch.Draw(_rect, new Vector2(285, 450), Color.Violet);
+
+            DrawingBubble();
+
+
+            foreach (Point p in _allFall)
+            {
+                if (p.X % 2 == 0)
+                {
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
                 else
                 {
-                    for (int j = 1; j < 20; j += 2)
-                    {
-                        if (findBBcanFall(_bbColor, _whereNoTag(_bbColor)).Find(new Point(i, j)) == null)
-                        {
-                            if (_bbColor[i, j] > -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -2)
-                            {
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                        }
-                    }
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
             }
 
 
+            //Trident Drawing
+            _spriteBatch.Draw(_trident, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(0 + 80, 300), new Vector2(0.6f, 0.6f), SpriteEffects.None, 0f);
 
             switch (_currentGameState)
             {
@@ -295,8 +298,6 @@ namespace Bubble
             _spriteBatch.DrawString(_font, "Have : " + _currentGameState, new Vector2(600, 500), Color.Red);
 
 
-            _spriteBatch.DrawString(_font, "Have : " + 2, new Vector2(600, 500), Color.Red);
-
             _spriteBatch.End();
             _graphics.BeginDraw();
 
@@ -311,12 +312,9 @@ namespace Bubble
         protected void Reset()
         {
             _bbHeight = 5;
-            
             TridentPos = new Point(600, 880);
 
-            _currentGameState = GameState.WaitingForShooting;
-            _falling = _bbHeight;
-            _moveSpeed = 100f;
+            //_currentGameState = GameState.WaitingForShooting;
 
             _moveSpeed = 100f;
             _falling = _bbHeight;
@@ -331,23 +329,19 @@ namespace Bubble
             _isFalled = true;
 
 
-        protected void falled()
-        {
-            foreach (Point p in findBBcanFall(_bbColor, _whereNoTag(_bbColor)))
-            {
-                _bbColor[p.X, p.Y] = -1;
-            }
         }
 
+        protected void _allBlankReset()
+        {
             for (int i = 1; i < 11; i++)
             {
                 if (i % 2 == 0)
                 {
                     for (int j = 0; j < 20; j += 2)
                     {
-                        if (b[i, j] == -2)
+                        if (_bbColor[i, j] < -1)
                         {
-                            list.AddLast(new Point(i, j));
+                            _bbColor[i, j] = -1;
                         }
                     }
                 }
@@ -355,15 +349,13 @@ namespace Bubble
                 {
                     for (int j = 1; j < 20; j += 2)
                     {
-                        if (b[i, j] == -2)
+                        if (_bbColor[i, j] < -1)
                         {
-                            list.AddLast(new Point(i, j));
+                            _bbColor[i, j] = -1;
                         }
                     }
                 }
             }
-
-            return list;
         }
 
         protected LinkedList<Point> _whereNoTag(int[,] b)
@@ -448,24 +440,7 @@ namespace Bubble
                 {
                     for (int j = 0; j < 20; j += 2)
                     {
-                        if (b[i, j] == -1)
-                        {
-                            if(near(i, j, b) > 0)
-                            {
-                                list.AddLast(new Point(i, j));
-                            }
-                            else
-                            {
-                                b[i, j] = -1;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (int j = 1; j < 20; j += 2)
-                    {
-                        if (b[i, j] == -1)
+                        if (b[i, j] <= -1)
                         {
                             int c = near(i, j, b);
                             if (c > 0)
@@ -474,7 +449,25 @@ namespace Bubble
                             }
                             else
                             {
-                                b[i, j] = -1;
+                                _bbColor[i, j] = -1;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int j = 1; j < 20; j += 2)
+                    {
+                        if (b[i, j] <= -1)
+                        {
+                            int c = near(i, j, b);
+                            if (c > 0)
+                            {
+                                list.AddLast(new Point(i, j));
+                            }
+                            else
+                            {
+                                _bbColor[i, j] = -1;
                             }
                         }
                     }
@@ -486,8 +479,6 @@ namespace Bubble
                 b[p.X, p.Y] = -2;
             }
 
-            _test = list;
-            _node = _test.Find(new Point(6, 14));
         }
 
         protected int near(int m, int n, int[,] b)
@@ -705,8 +696,16 @@ namespace Bubble
                 {
                     b[l.X, l.Y] = -2;
                 }
-                
-            }else
+
+                findBBcanFall(_bbColor, _whereNoTag(_bbColor));
+
+                if (_allFall.Count > 0)
+                {
+                    _isFalled = false;
+                }
+
+            }
+            else
             {
                 p.Clear();
             }
