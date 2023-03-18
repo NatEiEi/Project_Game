@@ -15,7 +15,7 @@ namespace Bubble
         public Texture2D _circle, _bubble, _rect, _bg, _trident;
         public SpriteFont _font;
         GameState _currentGameState;
-        public int _bbHeight, _newbb, _nextbb;
+        public int _bbHeight, _newbb, _nextbb, _score;
         Point TridentPos;
         Vector2 relPoint;
         float _rotateAngle, _moveAngle, _tick, _moveSpeed, _PlusX, _PlusY, _moveX, _moveY, _falling, _X_Axis, _Y_Axis;
@@ -23,9 +23,10 @@ namespace Bubble
         public MouseState _previousMouse, _currentMouse;
         public Random rnd = new Random();
         public Color[] allColor = { Color.Red, Color.Green, Color.Blue, Color.Yellow };
-        public int[,] _bbColor;
+        public int[,] _bbColor, checkfall;
         LinkedList<Point> _allFall;
         bool _isFalled;
+
 
         enum GameState
         {
@@ -226,21 +227,22 @@ namespace Bubble
 
             DrawingBubble();
 
-
-            foreach (Point p in _allFall)
+            if(_allFall.Count > 0)
             {
-                if (p.X % 2 == 0)
+                foreach (Point p in _allFall)
                 {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X,p.Y]]);
-                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
-                }
-                else
-                {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X, p.Y]]);
-                    _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
+                    if (p.X % 2 == 0)
+                    {
+                        _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X, p.Y]]);
+                        _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
+                    }
+                    else
+                    {
+                        _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X, p.Y]]);
+                        _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
+                    }
                 }
             }
-
 
             //Trident Drawing
             _spriteBatch.Draw(_trident, new Vector2(TridentPos.X, TridentPos.Y), null, Color.White, _rotateAngle, new Vector2(0 + 80, 300), new Vector2(0.6f, 0.6f), SpriteEffects.None, 0f);
@@ -261,9 +263,7 @@ namespace Bubble
                     _spriteBatch.Draw(_circle, new Vector2(570, 850), allColor[_nextbb]);
                     _spriteBatch.Draw(_bubble, new Vector2(570, 850), Color.White);
 
-
-
-
+                    
 
                     break;
                 case GameState.ShootBubble:
@@ -295,7 +295,7 @@ namespace Bubble
 
             }
 
-            //_spriteBatch.DrawString(_font, "Have : " + _currentGameState, new Vector2(600, 500), Color.Red);
+            _spriteBatch.DrawString(_font, "Score : " + _score, new Vector2(600, 500), Color.Red);
 
 
             _spriteBatch.End();
@@ -303,9 +303,6 @@ namespace Bubble
 
             base.Draw(gameTime);
         }
-
-
-
 
 
 
@@ -323,110 +320,13 @@ namespace Bubble
             _X_Axis = 0;
             _Y_Axis = 0;
 
+            checkfall = new int[11, 20];
 
             _newbb = _nextbb;
             _nextbb = rnd.Next(4);
             _isFalled = true;
 
 
-        }
-
-        protected void _allBlankReset()
-        {
-            for (int i = 1; i < 11; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    for (int j = 0; j < 20; j += 2)
-                    {
-                        if (_bbColor[i, j] < -1)
-                        {
-                            _bbColor[i, j] = -1;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int j = 1; j < 20; j += 2)
-                    {
-                        if (_bbColor[i, j] < -1)
-                        {
-                            _bbColor[i, j] = -1;
-                        }
-                    }
-                }
-            }
-        }
-
-        protected LinkedList<Point> _whereNoTag(int[,] b)
-        {
-            LinkedList<Point> list = new LinkedList<Point>();
-
-            for (int i = 1; i < 11; i++)
-            {
-                if (i % 2 == 0)
-                {
-                    for (int j = 0; j < 20; j += 2)
-                    {
-                        if (b[i, j] > -1)
-                        {
-                            if (j == 0)
-                            {
-                                if (topnear(i, j, b, -2) > 0 && rightnear(i, j, b, -2) > 0)
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                            else if (j > 0 && j < 18)
-                            {
-                                if (topnear(i, j, b, -2) == 2 && (leftnear(i, j, b, -2) > 0 || rightnear(i, j, b, -2) > 0))
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                            else
-                            {
-                                if (topnear(i, j, b, -2) == 2 && leftnear(i, j, b, -2) > 0)
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (int j = 1; j < 20; j += 2)
-                    {
-                        if (b[i, j] > -1)
-                        {
-                            if (j == 1)
-                            {
-                                if (topnear(i, j, b, -2) == 2 && rightnear(i, j, b, -2) > 0)
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                            else if (j > 1 && j < 19)
-                            {
-                                if (topnear(i, j, b, -2) == 2 && (leftnear(i, j, b, -2) > 0 || rightnear(i, j, b, -2) > 0))
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                            else
-                            {
-                                if (topnear(i, j, b, -2) > 0 && leftnear(i, j, b, -2) > 0)
-                                {
-                                    list.AddLast(new Point(i, j));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return list;
         }
 
         protected void _possibleBlank(int[,] b)
@@ -518,120 +418,65 @@ namespace Bubble
             return cnt;
         }
 
-        protected int topnear(int m, int n, int[,] b, int traget)
+        protected void findBBcanFall(int i, int j)
         {
-            int cnt = 0;
+            Queue<Point> q = new Queue<Point>();
 
-            if (m > 0 && n > 0 && b[m - 1, n - 1] == traget)
+            if (_bbColor[i,j] > -1 && checkfall[i,j] == 0)
             {
-                cnt++;
+                q.Enqueue(new Point(i,j));
+                checkfall[i, j] = 1;
             }
 
-            if (m > 0 && n < 19 && b[m - 1, n + 1] == traget)
+            do
             {
-                cnt++;
-            }
+                Point p = q.Dequeue();
 
-            return cnt;
-        }
-
-        protected int downnear(int m, int n, int[,] b, int traget)
-        {
-            int cnt = 0;
-
-            if (m < 10 && n > 0 && b[m + 1, n - 1] == traget)
-            {
-                cnt++;
-            }
-
-            if (m < 10 && n < 19 && b[m + 1, n + 1] == traget)
-            {
-                cnt++;
-            }
-
-            return cnt;
-        }
-
-        protected int leftnear(int m, int n, int[,] b, int traget)
-        {
-            int cnt = 0;
-            if (n > 1 && b[m, n - 2] == traget)
-            {
-                cnt++;
-            }
-
-            return cnt;
-        }
-
-        protected int rightnear(int m, int n, int[,] b, int traget)
-        {
-            int cnt = 0;
-
-            if (n < 18 && b[m, n + 2] == traget)
-            {
-                cnt++;
-            }
-
-            return cnt;
-        }
-
-        protected void findBBcanFall(int[,] b, LinkedList<Point> l)
-        {
-            foreach (Point p1 in l)
-            {
-                Queue<Point> q = new Queue<Point>();
-                int target = -1;
-
-                q.Enqueue(new Point(p1.X, p1.Y));
-
-                do
+                //left
+                if (p.Y > 1 && _bbColor[p.X, p.Y - 2] > -1 && checkfall[p.X, p.Y - 2] == 0)
                 {
-                    Point point = q.Peek();
+                    checkfall[p.X, p.Y - 2] = 1;
+                    q.Enqueue(new Point(p.X, p.Y - 2));
+                }
 
-                    //left
-                    if (point.Y > 1 && b[point.X, point.Y - 2] > target && _allFall.Find(new Point(point.X, point.Y - 2)) == null)
-                    {
-                        q.Enqueue(new Point(point.X, point.Y - 2));
-                    }
+                //right
+                if (p.Y < 18 && _bbColor[p.X, p.Y + 2] > -1 && checkfall[p.X, p.Y + 2] == 0)
+                {
+                    checkfall[p.X, p.Y + 2] = 1;
+                    q.Enqueue(new Point(p.X, p.Y + 2));
+                }
 
-                    //right
-                    if (point.Y < 18 && b[point.X, point.Y + 2] > target && _allFall.Find(new Point(point.X, point.Y + 2)) == null)
-                    {
-                        q.Enqueue(new Point(point.X, point.Y + 2));
-                    }
+                //up
+                //left
+                if (p.X > 0 && p.Y > 1 && _bbColor[p.X - 1, p.Y - 1] > -1 && checkfall[p.X - 1, p.Y - 1] == 0)
+                {
+                    checkfall[p.X - 1, p.Y - 1] = 1;
+                    q.Enqueue(new Point(p.X - 1, p.Y - 1));
+                }
 
-                    //up
-                    //left
-                    if (point.X > 0 && point.Y > 0 && b[point.X - 1, point.Y - 1] > target && _allFall.Find(new Point(point.X - 1, point.Y - 1)) == null)
-                    {
-                        q.Enqueue(new Point(point.X - 1, point.Y - 1));
-                    }
+                //right
+                if (p.X > 0 && p.Y < 19 && _bbColor[p.X - 1, p.Y + 1] > -1 && checkfall[p.X - 1, p.Y + 1] == 0)
+                {
+                    checkfall[p.X - 1, p.Y + 1] = 1;
+                    q.Enqueue(new Point(p.X - 1, p.Y + 1));
+                }
 
-                    //right
-                    if (point.X > 0 && point.Y < 19 && b[point.X - 1, point.Y + 1] > target && _allFall.Find(new Point(point.X - 1, point.Y + 1)) == null)
-                    {
-                        q.Enqueue(new Point(point.X - 1, point.Y + 1));
-                    }
+                //down
+                //left
+                if (p.X < 10 && p.Y > 1 && _bbColor[p.X + 1, p.Y - 1] > -1 && checkfall[p.X + 1, p.Y - 1] == 0)
+                {
+                    checkfall[p.X + 1, p.Y - 1] = 1;
+                    q.Enqueue(new Point(p.X + 1, p.Y - 1));
+                }
 
-                    //down
-                    //left
-                    if (point.X < 10 && point.Y > 0 && b[point.X + 1, point.Y - 1] > target && _allFall.Find(new Point(point.X + 1, point.Y - 1)) == null)
-                    {
-                        q.Enqueue(new Point(point.X + 1, point.Y - 1));
-                    }
-
-                    //right
-                    if (point.X < 10 && point.Y < 19 && b[point.X + 1, point.Y + 1] > target && _allFall.Find(new Point(point.X + 1, point.Y + 1)) == null)
-                    {
-                        q.Enqueue(new Point(point.X + 1, point.Y + 1));
-                    }
-
-                    _allFall.AddLast(point);
-                    q.Dequeue();
-
-
-                } while (q.Count > 0);
+                //right
+                if (p.X < 10 && p.Y < 19 && _bbColor[p.X + 1, p.Y + 1] > -1 && checkfall[p.X + 1, p.Y + 1] == 0)
+                {
+                    checkfall[p.X + 1, p.Y + 1] = 1;
+                    q.Enqueue(new Point(p.X + 1, p.Y + 1));
+                }
             }
+            while (q.Count > 0);
         }
 
         protected void popped(int[,] b, int x, int y)
@@ -639,7 +484,6 @@ namespace Bubble
             Queue<Point> q = new Queue<Point>();
             LinkedList<Point> p = new LinkedList<Point>();
             int target = b[x, y];
-
             q.Enqueue(new Point(x, y));
 
             do
@@ -658,19 +502,6 @@ namespace Bubble
                     q.Enqueue(new Point(point.X, point.Y + 2));
                 }
 
-                //up
-                //left
-                if (point.X > 0 && point.Y > 0 && b[point.X - 1, point.Y - 1] == target && p.Find(new Point(point.X - 1, point.Y - 1)) == null)
-                {
-                    q.Enqueue(new Point(point.X - 1, point.Y - 1));
-                }
-
-                //right
-                if (point.X > 0 && point.Y < 19 && b[point.X - 1, point.Y + 1] == target && p.Find(new Point(point.X - 1, point.Y + 1)) == null)
-                {
-                    q.Enqueue(new Point(point.X - 1, point.Y + 1));
-                }
-
                 //down
                 //left
                 if (point.X < 10 && point.Y > 0 && b[point.X + 1, point.Y - 1] == target && p.Find(new Point(point.X + 1, point.Y - 1)) == null)
@@ -682,6 +513,19 @@ namespace Bubble
                 if (point.X < 10 && point.Y < 19 && b[point.X + 1, point.Y + 1] == target && p.Find(new Point(point.X + 1, point.Y + 1)) == null)
                 {
                     q.Enqueue(new Point(point.X + 1, point.Y + 1));
+                }
+
+                //up
+                //left
+                if (point.X > 0 && point.Y > 0 && b[point.X - 1, point.Y - 1] == target && p.Find(new Point(point.X - 1, point.Y - 1)) == null)
+                {
+                    q.Enqueue(new Point(point.X - 1, point.Y - 1));
+                }
+
+                //right
+                if (point.X > 0 && point.Y < 19 && b[point.X - 1, point.Y + 1] == target && p.Find(new Point(point.X - 1, point.Y + 1)) == null)
+                {
+                    q.Enqueue(new Point(point.X - 1, point.Y + 1));
                 }
 
                 p.AddLast(point);
@@ -697,43 +541,69 @@ namespace Bubble
                     b[l.X, l.Y] = -2;
                 }
 
-                findBBcanFall(_bbColor, _whereNoTag(_bbColor));
+                _score += (int) Math.Pow(2, p.Count() - 3) * 10;
+
+                p.Clear();
+
+                int cnt = 0;
+                for (int i = 0; i < 20; i += 2)
+                {
+                    
+                    if (_bbColor[0,i] > -1)
+                    {
+                        cnt++;
+                        if(i < 18 && _bbColor[0, i + 2] < 0 || i == 18)
+                        {
+                            p.AddLast(new Point(0, i));
+                        }
+                    }
+                }
+
+                if (cnt == 10)
+                {
+                    findBBcanFall(0, 18);
+                }
+                else
+                {
+                    foreach (Point l in p)
+                    {
+                        findBBcanFall(l.X, l.Y);
+                    }
+                }
+
+                for (int m = 0; m < 11; m++)
+                {
+                    if (m % 2 == 0)
+                    {
+                        for (int n = 0; n < 20; n += 2)
+                        {
+                            if (checkfall[m, n] == 0 && _bbColor[m, n] > -1)
+                            {
+                                _allFall.AddLast(new Point(m, n));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int n = 1; n < 20; n += 2)
+                        {
+                            if (checkfall[m, n] == 0 && _bbColor[m, n] > -1)
+                            {
+                                _allFall.AddLast(new Point(m, n));
+                            }
+                        }
+                    }
+                }
 
                 if (_allFall.Count > 0)
                 {
                     _isFalled = false;
+                    _score += (int)Math.Pow(2, _allFall.Count - 1) * 5;
                 }
 
             }
-            else
-            {
-                p.Clear();
-            }
-
         }
-
-        protected float[] naive(int x2, int y2)
-        {
-
-            int x1 = 600;
-            int y1 = 880;
-            float[] Plus = new float[2];
-            float dx = x2 - x1;
-            float dy = y2 - y1;
-
-            float m = dy / dx;
-
-            if (dx < 0)
-            {
-                Plus[0] = 1;
-            }
-            else Plus[0] = -1;
-
-            Plus[1] = Math.Abs(m);
-
-
-            return Plus;
-        }
+        
         protected bool IsBubbleHit(int PointX, int PointY)
         {
 
@@ -754,6 +624,7 @@ namespace Bubble
 
             return false;
         }
+
         protected bool IsAddedBubble(float X)
         {
             //กำหนดจุดhit point Y ด้านบนวงกลม และจะมี X 3 จุด คือซ้าย กลาง ขวาของรูปวงกลม
