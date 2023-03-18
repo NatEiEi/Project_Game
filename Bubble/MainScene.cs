@@ -231,12 +231,12 @@ namespace Bubble
             {
                 if (p.X % 2 == 0)
                 {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X,p.Y]]);
                     _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
                 else
                 {
-                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.Black);
+                    _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), allColor[_bbColor[p.X, p.Y]]);
                     _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (p.Y / 2 * Singleton.TileSize), _falling + (p.X * Singleton.TileSize)), Color.LightCyan);
                 }
             }
@@ -295,7 +295,7 @@ namespace Bubble
 
             }
 
-            _spriteBatch.DrawString(_font, "Have : " + _currentGameState, new Vector2(600, 500), Color.Red);
+            //_spriteBatch.DrawString(_font, "Have : " + _currentGameState, new Vector2(600, 500), Color.Red);
 
 
             _spriteBatch.End();
@@ -737,7 +737,7 @@ namespace Bubble
         protected bool IsBubbleHit(int PointX, int PointY)
         {
 
-            if (PointX < 600)
+            if (PointX < 600 && PointX > _bbHeight+10)
             {
                 //การชนของแต่ละแถวไม่เหมือนกัน
                 if ((PointY / 60) % 2 == 0 && _bbColor[PointY / 60, ((PointX) / 60) * 2] >= 0)
@@ -831,14 +831,6 @@ namespace Bubble
                                 _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
                                 _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                             }
-                            else if (_bbColor[i, j] == -2)
-                            {
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
                         }
                     }
                 }
@@ -852,14 +844,6 @@ namespace Bubble
                             {
                                 _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), allColor[_bbColor[i, j]]);
                                 _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -2)
-                            {
-                                _spriteBatch.Draw(_bubble, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
-                            }
-                            else if (_bbColor[i, j] == -1)
-                            {
-                                _spriteBatch.Draw(_circle, new Vector2(Singleton.LeftMargin + (Singleton.TileSize / 2) + (j / 2 * Singleton.TileSize), _bbHeight + (i * Singleton.TileSize)), Color.LightCyan);
                             }
                         }
                     }
